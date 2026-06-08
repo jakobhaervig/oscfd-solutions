@@ -1,0 +1,219 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  5                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale 1;
+
+scale 1;
+a   0.2;   // sine amplitude (wall waviness)
+b   1.0;   // channel width (x-direction)
+n   3.0;   // number of complete periods along the channel
+L   5.0;   // channel length (y-direction)
+s   0.1;   // domain depth (z-direction, thin for 2D)
+cell_x 100;
+cell_y 100;
+cell_z 1;
+
+
+l #eval #{$L/$n#}; //  #5/3 5/4 5/5 5/6 5/7 //must be a whole period compared to the length of the channel.
+
+
+vertices
+(
+    //block1
+    (0   0   0)   // 0
+    ($b  0   0)   // 1
+    (0   $L  0)   // 2
+    ($b  $L  0)   // 3
+    (0   0  $s)   // 4
+    ($b  0  $s)   // 5
+    (0   $L $s)   // 6
+    ($b  $L $s)   // 7
+    
+);
+
+blocks
+(
+    //block1
+    hex (0 1 3 2 4 5 7 6) ($cell_x $cell_y $cell_z) simpleGrading (
+        (
+            (0.2 0.3 5)    // 20% y-dir, 30% cells, expansion = 4
+            (0.6 0.4 1)    // 60% y-dir, 40% cells, expansion = 1
+            (0.2 0.3 0.2) // 20% y-dir, 30% cells, expansion = 0.25 (1/4)
+        )
+        1                  // x-direction expansion ratio
+        1                  // z-direction expansion ratio
+    )  
+);
+
+edges
+(
+    spline 0 2
+    #codeStream
+    {
+        codeInclude #{ #include "pointField.H" #};
+        code
+        #{
+            pointField points(120);
+            double length = $L;
+            double amp    = $a;
+            double period = $l;
+            double sz     = points.size();
+            double thisy  = length / sz;
+
+            for (label i = 0; i < sz; i++)
+            {
+                double step = i * thisy;
+                points[i] = point(
+                    amp * sin(step * degToRad(180) * (2.0 / period)),
+                    step,
+                    0
+                );
+            }
+            os << points;
+        #};
+    }
+
+    
+    spline 4 6
+    #codeStream
+    {
+        codeInclude #{ #include "pointField.H" #};
+        code
+        #{
+            pointField points(120);
+            double length = $L;
+            double amp    = $a;
+            double period = $l;
+            double sz     = points.size();
+            double thisy  = length / sz;
+
+            for (label i = 0; i < sz; i++)
+            {
+                double step = i * thisy;
+                points[i] = point(
+                    amp * sin(step * degToRad(180) * (2.0 / period)),
+                    step,
+                    $s
+                );
+            }
+            os << points;
+        #};
+    }
+    
+    spline 1 3
+    #codeStream
+    {
+        codeInclude #{ #include "pointField.H" #};
+        code
+        #{
+            pointField points(120);
+            double length = $L;
+            double amp    = $a;
+            double period = $l;
+            double sz     = points.size();
+            double thisy  = length / sz;
+
+            for (label i = 0; i < sz; i++)
+            {
+                double step = i * thisy;
+                points[i] = point(
+                    amp * sin(step * degToRad(180) * (2.0 / period)) + $b,
+                    step,
+                    0
+                );
+            }
+            os << points;
+        #};
+    }
+
+    spline 5 7
+    #codeStream
+    {
+        codeInclude #{ #include "pointField.H" #};
+        code
+        #{
+            pointField points(120);
+            double length = $L;
+            double amp    = $a;
+            double period = $l;
+            double sz     = points.size();
+            double thisy  = length / sz;
+
+            for (label i = 0; i < sz; i++)
+            {
+                double step = i * thisy;
+                points[i] = point(
+                    amp * sin(step * degToRad(180) * (2.0 / period)) + $b,
+                    step,
+                    $s
+                );
+            }
+            os << points;
+        #};
+    }
+);
+
+boundary
+(
+    bottom
+    {
+        type cyclic;
+		neighbourPatch top;
+        faces
+        (
+            (1 5 4 0)
+        );
+    }
+	
+    top
+    {
+        type cyclic;
+		neighbourPatch bottom;
+        faces
+        (
+            //Hvis block1
+            (7 3 2 6)
+        );
+    }
+	
+    walls
+    {
+		type wall;
+        faces
+        (
+	        (4 6 2 0)
+            (5 1 3 7)
+		);
+	}
+
+    
+    frontAndBack
+    {
+        type empty;
+        faces
+        (
+            (0 2 3 1)
+            (4 5 7 6)
+
+        );
+    }
+);
+
+// mergePatchPairs
+// (
+// );
+
+// ************************************************************************* //

@@ -1,0 +1,3 @@
+partialTemperatureFvPatchScalarField.C
+
+LIB = $(FOAM_USER_LIBBIN)/libpartialTemperature

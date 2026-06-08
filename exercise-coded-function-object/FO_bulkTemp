@@ -1,0 +1,79 @@
+bulkTemp
+{
+    libs ("libutilityFunctionObjects.so");
+    type coded;
+    name bulkTemp;
+    enabled yes;
+    writeControl  timeStep;
+    writeInterval 10;
+
+    codeInclude
+    #{
+        #include "fvCFD.H"
+        #include <fstream>
+    #};
+
+    codeWrite
+    #{
+
+        // Patch to compute bulk temperature on
+        const word patchName = "outlet";
+
+        // Lookup temperature and velocity fields
+        const volScalarField& T = mesh().lookupObject<volScalarField>("T");
+        const volVectorField& U = mesh().lookupObject<volVectorField>("U");
+
+        // Find patch index
+        const label patchID = mesh().boundaryMesh().findPatchID(patchName);
+
+        if (patchID == -1)
+        {
+            WarningInFunction
+                << "Patch '" << patchName << "' not found."
+                << endl;
+            return false;
+        }
+
+        const fvPatch& patch           = mesh().boundary()[patchID];
+        const scalarField& Tp          = T.boundaryField()[patchID];
+        const vectorField& Up          = U.boundaryField()[patchID];
+        const scalarField  magSf       = patch.magSf();
+        const vectorField  nf          = patch.nf();   // outward unit face normals
+
+        // Accumulate local sums over patch faces
+        scalar weightedTSum = 0.0;
+        scalar totalFlux    = 0.0;
+
+        forAll(patch, faceI)
+        {
+            const scalar Un = Up[faceI] & nf[faceI];   // normal velocity component
+            weightedTSum += Tp[faceI] * Un * magSf[faceI];
+            totalFlux    += Un * magSf[faceI];
+        }
+
+        // Parallel reduction across all MPI ranks
+        reduce(weightedTSum, sumOp<scalar>());
+        reduce(totalFlux,    sumOp<scalar>());
+
+        const scalar bulkT = weightedTSum / totalFlux;
+
+        if (Pstream::master())
+        {
+            // Write time and bulk temperature to file
+            const fileName outputFile = mesh().time().path() / "Tbulk";
+
+            std::ofstream file(outputFile, std::ios::app);
+            if (file.is_open())
+            {
+                file<< mesh().time().timeOutputValue() << "\t" << bulkT << "\n";
+            }
+            else
+            {
+                WarningInFunction
+                    << "Could not open file '" << outputFile << "'"
+                    << endl;
+            }
+        }
+
+    #};
+}
