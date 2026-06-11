@@ -110,7 +110,7 @@ boundary
             (3 5 15 13)
         );
     }
-    lowerWall
+    wallLower
     {
         type wall;
         faces
@@ -121,7 +121,7 @@ boundary
             (2 3 13 12)
         );
     }
-    upperWall
+    wallUpper
     {
         type wall;
         faces
