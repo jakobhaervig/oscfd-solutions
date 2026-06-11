@@ -1,0 +1,159 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2212                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale   0.01;
+
+vertices
+(
+    (0 0 0) //0
+    (3 0 0) //1
+    (4 0 0) //2
+    (8 0 0) //3
+    (4 0.5 0) //4
+    (8 0.5 0) //5
+    (0 2 0) //6
+    (3 2 0) //7
+    (4 2 0) //8
+    (8 2 0) //9
+    (0 0 1) //10
+    (3 0 1) //11
+    (4 0 1) //12
+    (8 0 1) //13
+    (4 0.5 1) //14
+    (8 0.5 1) //15
+    (0 2 1) //16
+    (3 2 1) //17
+    (4 2 1) //18
+    (8 2 1) //19
+);
+
+blocks
+(
+    hex (0 1 7 6 10 11 17 16) (30 20 1) simpleGrading 
+    (
+        (      
+           1                //no grading in x
+        )
+        (      
+           (0.2 0.3 4)      //division 1
+           (0.6 0.4 1)      //division 2
+           (0.2 0.3 0.25)   //division 3
+        )
+        (      
+           1                //no grading in z
+        )
+    )
+    hex (1 4 8 7 11 14 18 17) (10 20 1) simpleGrading 
+    (
+        (      
+           1                //no grading in x
+        )
+        (      
+           (0.2 0.3 4)      //division 1
+           (0.6 0.4 1)      //division 2
+           (0.2 0.3 0.25)   //division 3
+        )
+        (      
+           1                //no grading in z
+        )
+    )
+    hex (2 3 5 4 12 13 15 14) (40 20 1) simpleGrading (1 1 1)
+    hex (4 5 9 8 14 15 19 18) (40 20 1) simpleGrading
+    (
+        (      
+           1                //no grading in x
+        )
+        (      
+           (0.2 0.3 4)      //division 1
+           (0.6 0.4 1)      //division 2
+           (0.2 0.3 0.25)   //division 3
+        )
+        (      
+           1                //no grading in z
+        )
+    )
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces
+        (
+            (0 10 16 6)
+        );
+    }
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (5 9 19 15)
+            (3 5 15 13)
+        );
+    }
+    lowerWall
+    {
+        type wall;
+        faces
+        (
+            (0 1 11 10)
+            (1 4 14 11)
+            (4 2 12 14)
+            (2 3 13 12)
+        );
+    }
+    upperWall
+    {
+        type wall;
+        faces
+        (
+            (6 16 17 7)
+            (8 7 17 18)
+            (9 8 18 19)
+        );
+    }
+    back
+    {
+        type empty;
+        faces
+        (
+            (0 6 7 1)
+            (1 7 8 4)
+            (4 8 9 5)
+            (2 4 5 3)
+        );
+    }
+    front
+    {
+        type empty;
+        faces
+        (
+            (10 11 17 16)
+            (11 14 18 17)
+            (14 15 19 18)
+            (12 13 15 14)
+        );
+    }
+);
+
+
+// ************************************************************************* //
