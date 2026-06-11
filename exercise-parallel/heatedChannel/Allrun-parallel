@@ -9,25 +9,10 @@ restore0Dir
 
 runApplication decomposePar
 
-runParallel topoSet
-
 runParallel $(getApplication)
 
-runApplication reconstructPar
+foamLog log.$(getApplication)
 
-
-latestTime=$(foamListTimes -latestTime)
-
-mv -f "$latestTime" "$latestTime".bak
-
-mkdir procs.old
-
-mv -f processor* procs.old
-
-runParallel -s "decompose" redistributePar -decompose -time 9.5
-
-runParallel -s 2 $(getApplication)
-
-runParallel -s "reconstruct" redistributePar -reconstruct -latestTime
+python plotResiduals.py
 
 #------------------------------------------------------------------------------
