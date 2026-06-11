@@ -3,21 +3,16 @@ cd "${0%/*}" || exit                                # Run from this directory
 . ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
 #------------------------------------------------------------------------------
 
-restore0Dir
-
-touch cwo.foam
-
 runApplication blockMesh
 
-runApplication snappyHexMesh -overwrite
+restore0Dir
 
-runApplication snappyHexMesh -overwrite
 runApplication decomposePar
+
 runParallel $(getApplication)
-#runApplication $(getApplication)
 
-runApplication foamLog log.$(getApplication)
+foamLog log.$(getApplication)
 
-python3 plotResiduals.py
+python plotResiduals.py
 
 #------------------------------------------------------------------------------
