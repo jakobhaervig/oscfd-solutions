@@ -25,16 +25,24 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "partialTemperatureFvPatchScalarField.H"
+#include "heatedSectionFvPatchScalarField.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fvPatchFieldMapper.H"
 #include "volFields.H"
+#include "surfaceFields.H"
+
+// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
+
+Foam::scalar Foam::heatedSectionFvPatchScalarField::t() const
+{
+    return db().time().timeOutputValue();
+}
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::partialTemperatureFvPatchScalarField::
-partialTemperatureFvPatchScalarField
+Foam::heatedSectionFvPatchScalarField::
+heatedSectionFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF
@@ -43,7 +51,7 @@ partialTemperatureFvPatchScalarField
     mixedFvPatchScalarField(p, iF),
     x0_(0),
     x1_(0),
-    Tvalue_(0)
+    BCValue_(0)
 {
     refValue() = Zero;
     refGrad() = Zero;
@@ -51,8 +59,8 @@ partialTemperatureFvPatchScalarField
 }
 
 
-Foam::partialTemperatureFvPatchScalarField::
-partialTemperatureFvPatchScalarField
+Foam::heatedSectionFvPatchScalarField::
+heatedSectionFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
@@ -62,7 +70,7 @@ partialTemperatureFvPatchScalarField
     mixedFvPatchScalarField(p, iF),
     x0_(dict.get<scalar>("x0")),
     x1_(dict.get<scalar>("x1")),
-    Tvalue_(dict.get<scalar>("Tvalue"))
+    BCValue_(dict.get<scalar>("BCValue"))
 {
     refGrad() = Zero;
     valueFraction() = Zero;
@@ -71,10 +79,10 @@ partialTemperatureFvPatchScalarField
 }
 
 
-Foam::partialTemperatureFvPatchScalarField::
-partialTemperatureFvPatchScalarField
+Foam::heatedSectionFvPatchScalarField::
+heatedSectionFvPatchScalarField
 (
-    const partialTemperatureFvPatchScalarField& ptf,
+    const heatedSectionFvPatchScalarField& ptf,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
@@ -83,40 +91,40 @@ partialTemperatureFvPatchScalarField
     mixedFvPatchScalarField(ptf, p, iF, mapper),
     x0_(ptf.x0_),
     x1_(ptf.x1_),
-    Tvalue_(ptf.Tvalue_)
+    BCValue_(ptf.BCValue_)
 {}
 
 
-Foam::partialTemperatureFvPatchScalarField::
-partialTemperatureFvPatchScalarField
+Foam::heatedSectionFvPatchScalarField::
+heatedSectionFvPatchScalarField
 (
-    const partialTemperatureFvPatchScalarField& ptf
+    const heatedSectionFvPatchScalarField& ptf
 )
 :
     mixedFvPatchScalarField(ptf),
     x0_(ptf.x0_),
     x1_(ptf.x1_),
-    Tvalue_(ptf.Tvalue_)
+    BCValue_(ptf.BCValue_)
 {}
 
 
-Foam::partialTemperatureFvPatchScalarField::
-partialTemperatureFvPatchScalarField
+Foam::heatedSectionFvPatchScalarField::
+heatedSectionFvPatchScalarField
 (
-    const partialTemperatureFvPatchScalarField& ptf,
+    const heatedSectionFvPatchScalarField& ptf,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
     mixedFvPatchScalarField(ptf, iF),
     x0_(ptf.x0_),
     x1_(ptf.x1_),
-    Tvalue_(ptf.Tvalue_)
+    BCValue_(ptf.BCValue_)
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::partialTemperatureFvPatchScalarField::autoMap
+void Foam::heatedSectionFvPatchScalarField::autoMap
 (
     const fvPatchFieldMapper& m
 )
@@ -125,7 +133,7 @@ void Foam::partialTemperatureFvPatchScalarField::autoMap
 }
 
 
-void Foam::partialTemperatureFvPatchScalarField::rmap
+void Foam::heatedSectionFvPatchScalarField::rmap
 (
     const fvPatchScalarField& ptf,
     const labelList& addr
@@ -135,7 +143,7 @@ void Foam::partialTemperatureFvPatchScalarField::rmap
 }
 
 
-void Foam::partialTemperatureFvPatchScalarField::updateCoeffs()
+void Foam::heatedSectionFvPatchScalarField::updateCoeffs()
 {
     if (updated())
     {
@@ -150,10 +158,10 @@ void Foam::partialTemperatureFvPatchScalarField::updateCoeffs()
 
         if (x >= x0_ && x <= x1_)
         {
-            // Fixed temperature strip
-            refValue()[facei] = Tvalue_;
-            refGrad()[facei] = 0; // if desired, could set to non-zero to specify gradient in the strip
-            valueFraction()[facei] = 1; // and flip this to 0 to specify gradient instead of value
+            // Fixed gradient (Neumann) in the heated strip
+            refValue()[facei] = 0;
+            refGrad()[facei] = BCValue_;
+            valueFraction()[facei] = 0; // 0 = fixed gradient, 1 = fixed value
         }
         else
         {
@@ -168,7 +176,7 @@ void Foam::partialTemperatureFvPatchScalarField::updateCoeffs()
 }
 
 
-void Foam::partialTemperatureFvPatchScalarField::write
+void Foam::heatedSectionFvPatchScalarField::write
 (
     Ostream& os
 ) const
@@ -176,8 +184,7 @@ void Foam::partialTemperatureFvPatchScalarField::write
     fvPatchScalarField::write(os);
     os.writeEntry("x0", x0_);
     os.writeEntry("x1", x1_);
-    os.writeEntry("Tvalue", Tvalue_);
-    fvPatchScalarField::writeValueEntry(os);
+    os.writeEntry("BCValue", BCValue_);
 }
 
 
@@ -188,7 +195,7 @@ namespace Foam
     makePatchTypeField
     (
         fvPatchScalarField,
-        partialTemperatureFvPatchScalarField
+        heatedSectionFvPatchScalarField
     );
 }
 

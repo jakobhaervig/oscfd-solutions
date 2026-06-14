@@ -10,45 +10,47 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    object      controlDict;
+    object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     pimpleFoam;
+ddtSchemes
+{
+    default         backward;
+}
 
-startFrom       latestTime;
+gradSchemes
+{
+    default         Gauss linear;
+}
 
-startTime       0;
+divSchemes
+{
+    default         none;
 
-stopAt          endTime;
+    div(phi,U)      Gauss LUST grad(U);
 
-endTime         0.3;
+    div(phi,k)      Gauss limitedLinear 1;
+    div(phi,T)      bounded Gauss limitedLinear 1;
+    div(phi,T2)      bounded Gauss limitedLinear 1;
 
-deltaT          0.0001;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
 
-writeControl    adjustable;
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
 
-writeInterval   0.01;
+interpolationSchemes
+{
+    default         linear;
+}
 
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable yes;
-
-adjustTimeStep  yes;
-
-maxCo           5;
-
-libs ( "libpartialTemperature.so" );
+snGradSchemes
+{
+    default         corrected;
+}
 
 
 // ************************************************************************* //

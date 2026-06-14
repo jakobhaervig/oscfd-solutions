@@ -24,45 +24,64 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::partialTemperatureFvPatchScalarField
+    Foam::heatedSectionFvPatchScalarField
 
 Group
     grpGenericBoundaryConditions
 
 Description
-    This boundary condition applies a fixed temperature \c Tvalue between
-    two y-coordinates \c y0 and \c y1 on the patch, and zeroGradient
-    elsewhere.
+    This boundary condition provides a heatedSection condition,
+    calculated as:
+
+        \f[
+            Q = Q_{0} + Q_{p} + s*Q_{t}
+        \f]
+
+    where
+    \vartable
+        s      | single scalar value [units]
+        Q_{0}  | single scalar value [units]
+        Q_{p}  | scalar field across patch [units]
+        Q_{t}  | scalar function of time [units]
+    \endtable
 
 Usage
     \table
-        Property | Description                        | Req'd | Default
-        y0       | lower y-coordinate of heated strip | yes   |
-        y1       | upper y-coordinate of heated strip | yes   |
-        Tvalue   | temperature applied in the strip   | yes   |
+        Property   | Description                  | Req'd | Default
+        scalarData | single scalar value          | yes |
+        data       | single scalar value          | yes |
+        fieldData  | scalar field across patch    | yes |
+        timeVsData | scalar function of time      | yes |
+        wordData   | word, eg name of data object | no  | wordDefault
     \endtable
 
     Example of the boundary condition specification:
     \verbatim
     <patchName>
     {
-        type    partialTemperature;
-        y0      0.2;
-        y1      0.8;
-        Tvalue  400;
-        value   uniform 300; // optional initial value
+        type       heatedSection;
+        scalarData -1;
+        data       1;
+        fieldData  uniform 3;
+        timeVsData table (
+                             (0 0)
+                             (1 2)
+                          );
+        wordName   anotherName;
+        value      uniform 4; // optional initial value
     }
     \endverbatim
 
 SourceFiles
-    partialTemperatureFvPatchScalarField.C
+    heatedSectionFvPatchScalarField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef partialTemperatureFvPatchScalarField_H
-#define partialTemperatureFvPatchScalarField_H
+#ifndef heatedSectionFvPatchScalarField_H
+#define heatedSectionFvPatchScalarField_H
 
 #include "mixedFvPatchFields.H"
+#include "Function1.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -70,10 +89,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-     Class partialTemperatureFvPatchScalarField Declaration
+     Class heatedSectionFvPatchScalarField Declaration
 \*---------------------------------------------------------------------------*/
 
-class partialTemperatureFvPatchScalarField
+class heatedSectionFvPatchScalarField
 :
     public mixedFvPatchScalarField
 {
@@ -86,28 +105,31 @@ class partialTemperatureFvPatchScalarField
         scalar x1_;
 
         //- Temperature applied between x0 and x1
-        scalar Tvalue_;
-
+        scalar BCValue_;
 
     // Private Member Functions
+
+        //- Return current time
+        scalar t() const;
+
 
 public:
 
     //- Runtime type information
-    TypeName("partialTemperature");
+    TypeName("heatedSection");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        partialTemperatureFvPatchScalarField
+        heatedSectionFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        partialTemperatureFvPatchScalarField
+        heatedSectionFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
@@ -115,18 +137,18 @@ public:
         );
 
         //- Construct by mapping onto a new patch
-        partialTemperatureFvPatchScalarField
+        heatedSectionFvPatchScalarField
         (
-            const partialTemperatureFvPatchScalarField&,
+            const heatedSectionFvPatchScalarField&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
 
         //- Copy construct
-        partialTemperatureFvPatchScalarField
+        heatedSectionFvPatchScalarField
         (
-            const partialTemperatureFvPatchScalarField&
+            const heatedSectionFvPatchScalarField&
         );
 
         //- Construct and return a clone
@@ -134,14 +156,14 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new partialTemperatureFvPatchScalarField(*this)
+                new heatedSectionFvPatchScalarField(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        partialTemperatureFvPatchScalarField
+        heatedSectionFvPatchScalarField
         (
-            const partialTemperatureFvPatchScalarField&,
+            const heatedSectionFvPatchScalarField&,
             const DimensionedField<scalar, volMesh>&
         );
 
@@ -153,7 +175,7 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new partialTemperatureFvPatchScalarField
+                new heatedSectionFvPatchScalarField
                 (
                     *this,
                     iF
