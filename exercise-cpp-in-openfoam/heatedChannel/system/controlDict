@@ -1,0 +1,102 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     pisoTempFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         0.3;
+
+deltaT          1e-04;
+
+writeControl    adjustableRunTime;
+
+writeInterval   1e-3;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+functions
+{    
+    probes
+    {
+        type            probes;
+        libs            (sampling);
+        writeControl    writeTime;
+
+        fields
+        (
+            U
+        );
+
+        probeLocations
+        (
+            (0.06 0 0)
+            (0.06 0.002 0)
+            (0.06 0.004 0)
+            (0.06 0.006 0)
+            (0.06 0.008 0)
+            (0.06 0.010 0)
+            (0.06 0.012 0)
+            (0.06 0.014 0)
+            (0.06 0.016 0)
+            (0.06 0.018 0)
+            (0.06 0.020 0) 
+        );
+    }
+
+    Tfield
+    {
+        // Mandatory entries
+        type            scalarTransport;
+        libs            (solverFunctionObjects);
+
+        // Optional entries
+        field           T;
+        D               0.146e-6;
+        writeControl    writeTime;
+    }
+
+    Tbulk
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        fields          (T);
+        regionType      patch;
+        operation       weightedAreaAverage;
+        name            outlet;
+        weightField     phi;
+        writeFields     false;
+    }
+}
+
+
+// ************************************************************************* //

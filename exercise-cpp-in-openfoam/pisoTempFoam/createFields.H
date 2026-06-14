@@ -27,12 +27,12 @@ volVectorField U
 );
 
 // Temperature field
-Info<< "Reading field T\n" << endl;
-volScalarField T
+Info<< "Reading field T2\n" << endl;
+volScalarField T2
 (
     IOobject
     (
-        "T",
+        "T2",
         runTime.timeName(),
         mesh,
         IOobject::MUST_READ,
@@ -71,9 +71,9 @@ IOdictionary transportProperties
 );
 
 // Thermal diffusivity — read from transportProperties
-dimensionedScalar DT
+dimensionedScalar DT2
 (
-    "DT",
+    "DT2",
     dimViscosity,        // [m²/s]
     transportProperties
 );

@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
                 #include "pEqn.H"
             }
 
-            #include "TEqn.H"
+            #include "T2Eqn.H"
         }
 
         laminarTransport.correct();
