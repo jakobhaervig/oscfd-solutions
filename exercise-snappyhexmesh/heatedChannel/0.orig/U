@@ -9,39 +9,49 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      k;
+    class       volVectorField;
+    object      U;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 2 -2 0 0 0 0];
+dimensions      [0 1 -1 0 0 0 0];
 
-internalField   uniform 0.375;
+internalField   uniform (0 0 0);
 
 boundaryField
 {
+    // inlet
+    // {
+    //     type            timeVaryingMappedFixedValue;
+    //     offset          (0 0 0);
+    //     setAverage      off;
+    // }
+
     inlet
     {
-        type            turbulentIntensityKineticEnergyInlet;
-        intensity       0.05;
-        value           uniform 0.375;
+        type            fixedValue;
+        value           uniform (5 0 0);
     }
+
+    // outlet
+    // {
+    //     type            zeroGradient;
+    // }
 
     outlet
     {
-        type            zeroGradient;
+        type            inletOutlet;
+        inletValue      uniform (0 0 0);
     }
 
-    ".*Wall"
+    "wall.*"
     {
-        type            kqRWallFunction;
-        value           uniform 0.375;
+        type            noSlip;
     }
 
     "front|back"
     {
-        type            kqRWallFunction;
-        value           uniform 0.375;
+        type            noSlip;
     }
 }
 

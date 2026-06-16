@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2212                                 |
+|  \\    /   O peration     | Version:  v2512                                 |
 |   \\  /    A nd           | Website:  www.openfoam.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -9,37 +9,46 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      p;
+    class       dictionary;
+    object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 2 -2 0 0 0 0];
-
-internalField   uniform 0;
-
-boundaryField
+ddtSchemes
 {
-    inlet
-    {
-        type            zeroGradient;
-    }
+    default         backward;
+}
 
-    outlet
-    {
-        type            fixedValue;
-        value           uniform 0;
-    }
+gradSchemes
+{
+    default         Gauss linear;
+}
 
-    ".*Wall"
-    {
-        type            zeroGradient;
-    }
+divSchemes
+{
+    default         none;
 
-    "front|back"
-    {
-        type            zeroGradient;
-    }
+    div(phi,U)      Gauss LUST grad(U);
+
+    div(phi,k)      Gauss limitedLinear 1;
+    div(phi,s)      bounded Gauss limitedLinear 1;
+
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
 }
 
 

@@ -140,7 +140,7 @@ castellatedMeshControls
             level (0 0);
             patchInfo
             {
-                type patch;
+                type wall;
             }
         }
         back
@@ -148,7 +148,7 @@ castellatedMeshControls
             level (0 0);
             patchInfo
             {
-                type patch;
+                type wall;
             }
         }
         wallUpper

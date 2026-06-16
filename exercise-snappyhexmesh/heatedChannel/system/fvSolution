@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2212                                 |
+|  \\    /   O peration     | Version:  v2512                                 |
 |   \\  /    A nd           | Website:  www.openfoam.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -27,56 +27,25 @@ solvers
     pFinal
     {
         $p;
+        smoother        DICGaussSeidel;
+        tolerance       1e-06;
         relTol          0;
     }
 
-    "(U|k|epsilon|R|nuTilda)"
+    "(U|k|B|nuTilda|s)"
     {
         solver          smoothSolver;
-        smoother        symGaussSeidel;
+        smoother        GaussSeidel;
         tolerance       1e-05;
-        relTol          0.1;
-    }
-
-    "(U|k|epsilon)Final"
-    {
-        $U;
         relTol          0;
     }
 }
 
-PIMPLE
+PISO
 {
+    nCorrectors     2;
     nNonOrthogonalCorrectors 0;
-    nCorrectors         2;
 }
 
-// SIMPLE
-// {
-//     nNonOrthogonalCorrectors 0;
-
-//     residualControl
-//     {
-//         p               1e-2;
-//         U               1e-3;
-//         "(k|epsilon|omega)" 1e-3;
-//     }
-// }
-
-// relaxationFactors
-// {
-//     fields
-//     {
-//         p               0.3;
-//     }
-//     equations
-//     {
-//         U               0.7;
-//         k               0.7;
-//         epsilon         0.7;
-//         R               0.7;
-//         nuTilda         0.7;
-//     }
-// }
 
 // ************************************************************************* //
