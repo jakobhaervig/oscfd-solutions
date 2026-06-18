@@ -9,40 +9,10 @@ import subprocess
 CASECOUNT = 1
 
 def runCase(X): #function of 2 variables, X[0] and X[1]
-    global CASECOUNT
-    alpha = X[0] # angle in degrees
-    nx = np.cos(np.radians(alpha)) # x component of normal vector
-    ny = np.sin(np.radians(alpha)) # y component of normal vector
-    L = X[1]/1000 # length in m
-
-    print(f"Running case {CASECOUNT} with alpha={alpha} degrees and L={L} m")
-
-    path_case = Path(f"case_{CASECOUNT:04d}")
-    path_template = Path("heatedPlate_template")
-
-    path_template.copy(path_case, preserve_metadata=True) # copy the template case to a new case folder
-    path_snappyHexMeshDict = path_case / "system/snappyHexMeshDict.plate"
-    content = path_snappyHexMeshDict.read_text() # read the content of the snappyHexMeshDict.plate file
-    content = content.replace("{nx}", str(nx)) # replace the placeholder with the actual angle value
-    content = content.replace("{ny}", str(ny)) # replace the placeholder with the actual angle value
-    content = content.replace("{L}", str(L)) # replace the placeholder with the actual length
-    path_snappyHexMeshDict.write_text(content) # write the modified content back to the file
-
-    subprocess.call(["./Allrun"], cwd=path_case) # run the case in path_case using the Allrun script
-
-    data_pInlet = np.loadtxt(path_case / "postProcessing/pInlet/0/surfaceFieldValue.dat", skiprows=5) # read the pressure at inlet from the file
-    data_TbulkOutlet = np.loadtxt(path_case / "postProcessing/TbulkOutlet/0/surfaceFieldValue.dat", skiprows=6) # read the temperature at outlet from the file
-
-    mean_pInlet = np.mean(data_pInlet[-100:,1]) # calculate the mean pressure at inlet
-    mean_TbulkOutlet = np.mean(data_TbulkOutlet[-100:,1]) # calculate the mean temperature at outlet
-
-    np.savetxt(path_case / "objectives.txt", [mean_pInlet, mean_TbulkOutlet]) # save the objective values to a text file
-    np.savetxt(path_case / "variables.txt", [alpha, L]) # save the variables to a text file
-
-
-    CASECOUNT += 1 # increment the case count for the next run
-    return [mean_pInlet, mean_TbulkOutlet] # return the objective values as a list
-
+   global CASECOUNT
+   print(f"Running case {CASECOUNT}")
+   CASECOUNT += 1
+   return [0,0]
 # var0: angle (deg)
 # var1: length of plate (mm)
 
