@@ -1,0 +1,20 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#------------------------------------------------------------------------------
+
+touch case.foam
+
+runApplication blockMesh
+
+runApplication snappyHexMesh -dict system/snappyHexMeshDict.emptyChannel -overwrite
+runApplication extrudeMesh
+
+rm -rf constant/polyMesh.emptyChannel
+cp -r constant/polyMesh constant/polyMesh.emptyChannel
+
+restore0Dir
+
+#runApplication $(getApplication)
+
+#------------------------------------------------------------------------------
