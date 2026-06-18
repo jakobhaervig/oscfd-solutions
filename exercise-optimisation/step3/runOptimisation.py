@@ -68,6 +68,8 @@ f2 = [s.objectives[1] for s in results] # get the second objective values
 angle = [problem.types[0].decode(s.variables[0]) for s in results] # get the angle values
 length = [problem.types[1].decode(s.variables[1]) for s in results] # get the length values
 
+
+## Interactive parallel coordinates plot using Plotly
 fig = go.Figure(go.Parcoords(
     line=dict(color=f1, showscale=True, colorscale='Viridis',colorbar=dict(title='Objective 1 (minimize)')),
     dimensions=list([
@@ -81,8 +83,9 @@ fig.update_layout(title='Parallel Coordinates Plot for Multi-objective Optimizat
 fig.show()
 
 
+## Plotting the Pareto front using Matplotlib
 plt.plot(f1, f2, 'o') # plot the objective values
-plt.xlabel('Objective 1 (minimize)')
-plt.ylabel('Objective 2 (maximize)')
-plt.title('Pareto Front')
+plt.xlabel('Objective 1 (minimize)') # label for x-axis
+plt.ylabel('Objective 2 (maximize)') # label for y-axis
+plt.title('Pareto Front') # title for the plot
 plt.savefig('pareto_front.png') # save the plot as an image
