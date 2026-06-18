@@ -9,45 +9,42 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      nut;
+    class       dictionary;
+    object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 2 -1 0 0 0 0];
-
-internalField   uniform 0;
-
-boundaryField
+solvers
 {
-    inlet
+    p
     {
-        type            calculated;
-        value           uniform 0;
+        solver          GAMG;
+        tolerance       1e-06;
+        relTol          0.1;
+        smoother        GaussSeidel;
     }
 
-    outlet
+    pFinal
     {
-        type            calculated;
-        value           uniform 0;
+        $p;
+        smoother        DICGaussSeidel;
+        tolerance       1e-06;
+        relTol          0;
     }
 
-    upperWall
+    "(U|T|T2)"
     {
-        type            nutkWallFunction;
-        value           uniform 0;
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+        tolerance       1e-05;
+        relTol          0;
     }
+}
 
-    lowerWall
-    {
-        type            nutkWallFunction;
-        value           uniform 0;
-    }
-
-    frontAndBack
-    {
-        type            empty;
-    }
+PISO
+{
+    nCorrectors     2;
+    nNonOrthogonalCorrectors 0;
 }
 
 

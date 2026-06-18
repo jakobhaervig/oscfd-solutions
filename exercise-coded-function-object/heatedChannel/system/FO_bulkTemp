@@ -60,7 +60,7 @@ bulkTemp
         if (Pstream::master())
         {
             // Write time and bulk temperature to file
-            const fileName outputFile = mesh().time().path() / "Tbulk";
+            const fileName outputFile = "Tbulk";
 
             std::ofstream file(outputFile, std::ios::app);
             if (file.is_open())
