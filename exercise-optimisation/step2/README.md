@@ -1,0 +1,5 @@
+- pip install numpy         # For numerical operations
+- pip install matplotlib    # For plotting
+- pip install plotly        # For interactive plots
+- pip install pathlib       # For path manipulation
+- pip install Platypus-Opt  # For multi-objective optimization

@@ -1,0 +1,28 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#------------------------------------------------------------------------------
+
+touch case.foam
+
+if [ -d "constant/polyMesh.emptyChannel" ]; then
+    echo "Empty channel mesh already exists. Skipping mesh generation."
+else
+    runApplication blockMesh
+    runApplication snappyHexMesh -dict system/snappyHexMeshDict.emptyChannel -overwrite
+    rm -rf constant/polyMesh.emptyChannel
+    cp -r constant/polyMesh constant/polyMesh.emptyChannel
+    rm -rf constant/polyMesh
+fi
+
+rm -f log.snappyHexMesh
+cp -r constant/polyMesh.emptyChannel constant/polyMesh
+runApplication snappyHexMesh -dict system/snappyHexMeshDict.plate -overwrite
+
+runApplication extrudeMesh
+
+restore0Dir
+
+runApplication $(getApplication)
+
+#------------------------------------------------------------------------------

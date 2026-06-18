@@ -1,0 +1,84 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     pisoFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         2;
+
+deltaT          1e-03;
+
+writeControl    adjustableRunTime;
+
+writeInterval   1e-2;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+libs    ("libfixedValueSection.so");
+
+functions
+{
+    Teqn
+    {
+        type            scalarTransport;
+        libs            (solverFunctionObjects);
+        field           T;  // (<field1> <field2> ... <fieldN>);
+        D               20e-6;  // m²/s (diffusivity)
+        writeControl    writeTime;
+    }
+
+    TbulkOutlet
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        fields          (T);  // (<field1> <field2> ... <fieldN>);
+        regionType      patch;
+        name            outlet;  // name of the patch
+        operation       weightedAreaAverage;
+        writeFields     false;
+        weightField     phi;
+    }
+
+    pInlet
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        fields          (p);  // (<field1> <field2> ... <fieldN>);
+        regionType      patch;
+        name            inlet;  // name of the patch
+        operation       areaAverage;
+        writeFields     false;
+    }
+}
+
+// ************************************************************************* //
