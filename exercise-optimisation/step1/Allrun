@@ -5,13 +5,21 @@ cd "${0%/*}" || exit                                # Run from this directory
 
 touch case.foam
 
-runApplication blockMesh
+if [ -d "constant/polyMesh.emptyChannel" ]; then
+    echo "Empty channel mesh already exists. Skipping mesh generation."
+else
+    runApplication blockMesh
+    runApplication snappyHexMesh -dict system/snappyHexMeshDict.emptyChannel -overwrite
+    rm -rf constant/polyMesh.emptyChannel
+    cp -r constant/polyMesh constant/polyMesh.emptyChannel
+    rm -rf constant/polyMesh
+fi
 
-runApplication snappyHexMesh -dict system/snappyHexMeshDict.emptyChannel -overwrite
+rm -f log.snappyHexMesh
+cp -r constant/polyMesh.emptyChannel constant/polyMesh
+runApplication snappyHexMesh -dict system/snappyHexMeshDict.plate -overwrite
+
 runApplication extrudeMesh
-
-rm -rf constant/polyMesh.emptyChannel
-cp -r constant/polyMesh constant/polyMesh.emptyChannel
 
 restore0Dir
 
