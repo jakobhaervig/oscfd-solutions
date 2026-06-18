@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
-from platypus import NSGAII, Problem, Real, Integer
+from platypus import NSGAII, Problem, Integer
 import plotly.graph_objects as go
 import numpy as np
 from pathlib import Path
-import sys
 import subprocess
 
 CASECOUNT = 1
