@@ -11,17 +11,17 @@ CASECOUNT = 1
 def runCase(X): #function of 2 variables, X[0] and X[1]
     global CASECOUNT
     alpha = X[0] # angle in degrees
-    nx = np.cos(np.radians(alpha)) # x component of normal vector
-    ny = np.sin(np.radians(alpha)) # y component of normal vector
+    nx = np.cos(np.radians(alpha)) # x component of vector along the plate
+    ny = np.sin(np.radians(alpha)) # y component of vector along the plate
     L = X[1]/1000 # length in m
 
     print(f"Running case {CASECOUNT} with alpha={alpha} degrees and L={L} m")
 
-    path_case = Path(f"case_{CASECOUNT:04d}")
-    path_template = Path("heatedPlate_template")
+    path_case = Path(f"case_{CASECOUNT:04d}") #Path object for the case folder, e.g. case_0001, case_0002, etc.
+    path_template = Path("heatedPlate_template") #Path object for the template case folder, which contains the snappyHexMeshDict.plate file with placeholders for the variables
 
-    path_template.copy(path_case, preserve_metadata=True) # copy the template case to a new case folder
-    path_snappyHexMeshDict = path_case / "system/snappyHexMeshDict.plate"
+    path_template.copy(path_case, preserve_metadata=True) #Path method to copy the template folder to the case folder, preserving the metadata such as permissions and timestamps
+    path_snappyHexMeshDict = path_case / "system/snappyHexMeshDict.plate" #Path object for the snappyHexMeshDict.plate file in the case folder
     content = path_snappyHexMeshDict.read_text() # read the content of the snappyHexMeshDict.plate file
     content = content.replace("{nx}", str(nx)) # replace the placeholder with the actual angle value
     content = content.replace("{ny}", str(ny)) # replace the placeholder with the actual angle value
@@ -82,8 +82,8 @@ fig.update_layout(title='Parallel Coordinates Plot for Multi-objective Optimizat
 fig.show()
 
 
-# plt.plot(f1, f2, 'o') # plot the objective values
-# plt.xlabel('Objective 1 (minimize)')
-# plt.ylabel('Objective 2 (maximize)')
-# plt.title('Pareto Front')
-# plt.savefig('pareto_front.png') # save the plot as an image
+plt.plot(f1, f2, 'o') # plot the objective values
+plt.xlabel('Objective 1 (minimize)')
+plt.ylabel('Objective 2 (maximize)')
+plt.title('Pareto Front')
+plt.savefig('pareto_front.png') # save the plot as an image
